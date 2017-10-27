@@ -94,7 +94,12 @@ export default {
       payment: "",
       showCheckOut: 0,
       showCart: 1,
-      showSuccess: 0
+      showSuccess: 0,
+      config: {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      }
     };
   },
   methods: {
@@ -111,7 +116,7 @@ export default {
       data.append("total_price", self.getTotalPrice);
       axios
         .post(
-          "http://bookrest/user12/rest_book/client/api/orders/",
+          getUrl()+'orders/',
           data,
           self.config
         )
@@ -129,7 +134,7 @@ export default {
       self.id = JSON.parse(localStorage["id"]);
       axios
         .delete(
-          "http://bookrest/user12/rest_book/client/api/orders/" + self.id,
+          getUrl()+'orders/' + self.id,
           self.config
         )
         .then(function(response) {})
@@ -150,7 +155,7 @@ export default {
         data.append("discount_book", book.discount);
         axios
           .post(
-            "http://bookrest/user12/rest_book/client/api/OrderInfo/",
+            getUrl()+'OrderInfo/',
             data,
             self.config
           )
@@ -189,7 +194,7 @@ export default {
       var books = self.cart;
       axios
         .get(
-          "http://bookrest/user12/rest_book/client/api/payment/",
+          getUrl()+'payment/',
           self.config
         )
         .then(function(response) {
@@ -205,7 +210,7 @@ export default {
       var books = self.cart;
       axios
         .put(
-          "http://bookrest/user12/rest_book/client/api/cart/",
+          getUrl()+'cart/',
           books,
           self.config
         )
@@ -222,7 +227,7 @@ export default {
       if (localStorage["id"]) {
         self.id = JSON.parse(localStorage["id"]);
         axios
-          .get("http://bookrest/user12/rest_book/client/api/Client/" + self.id)
+          .get(getUrl()+'Client/' + self.id)
           .then(function(response) {
             if (response.data !== false) {
               self.clientDiscount = response.data.discount;
@@ -269,7 +274,7 @@ export default {
       if (localStorage["id"]) {
         self.id = JSON.parse(localStorage["id"]);
         axios
-          .get("http://bookrest/user12/rest_book/client/api/cart/" + self.id)
+          .get(getUrl()+'cart/' + self.id)
           .then(function(response) {
             if (response.data !== false) {
               self.cart = response.data;

@@ -1,10 +1,10 @@
 <template>
     <div class="row order-back">
       <div class="col-md-offset-2 col-md-8">
-        <router-link to='/'><button class="btn btn-warning main-btn">Main page</button></router-link>
+        <p class="alert-danger">{{error}}</p>
         <div v-if="orders.length != 0 " >
             <h3>Order List</h3>
-          <table v-if="checkUser > 0" class="table table-bordered">
+          <table class="table table-bordered">
             <thead>
             <tr class="info">
               <th class="thTable">Order</th>
@@ -18,14 +18,19 @@
               <th class="thTable">Total Price</th>
             </tr>
             </thead>
-            <tbody v-for="order in orders">
-              <tr v-on:click="listFullOrder(order.id)"   class="collapsed trOrders tr-ord" data-toggle="collapse" :href="'#' + order.id" aria-expanded="false" :aria-controls="order.id">
-                <td>{{order.id}}</td>
+            <tbody v-for="(order, index) in orders">
+              <tr v-on:click="listFullOrder(order.id)" class="collapsed trOrders tr-ord" data-toggle="collapse" :href="'#' + order.id" aria-expanded="false" :aria-controls="order.id">
+                <td >{{order.id}}</td>
                 <td>{{order.date_time}}</td>
                 <td>{{order.first_name}}</td>
                 <td>{{order.last_name}}</td>
                 <td>{{order.name}}</td>
-                <td>{{order.status}}</td>
+                <td>
+                  <select v-model="orders[index].status" v-on:change="saveStatus(orders[index].status,orders[index].id )">
+                    <option value="processed">Processed</option>   
+                    <option value="sent">Sent</option>
+                  </select>
+                </td>
                 <td>{{order.discount}}</td>
                 <td>{{order.total_discount}}$</td>
                 <td>{{order.total_price}}$</td>
@@ -54,9 +59,7 @@
               </tr>
             </tbody>
           </table>   
-          <div v-else >
-              <p class="order-login">Please, login</p>
-          </div>
+      
         </div>
         <div v-else>
             <p class="no-order"> 
@@ -76,7 +79,7 @@ export default {
       error: "",
       orders: [],
       ordersFull: [],
-      checkUser: 0,
+      orderid: '',
       config: {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
@@ -85,14 +88,37 @@ export default {
     };
   },
   methods: {
+      saveStatus: function(index,id){
+      var self = this
+      var data = {}
+      data.id = id 
+      data.status = index
+      axios.put(getUrl()+'orders/', data, self.config)
+        .then(function (response) {
+          self.listOrder()
+        if (response.data == 'OK')
+        {
+            self.error = 'Order №' + data.id +  ' - Status changed!'
+        }
+        else
+        {
+            self.error = response.data
+        }
+      })
+          .catch(function (error) {
+          console.log(error)
+      })
+          
+    },
     listOrder: function() {
       var self = this;
       self.id = JSON.parse(localStorage["id"]);
       axios
-        .get(getUrl()+'orders/' + self.id + "/")
+        .get(getUrl()+'orders/')
         .then(function(response) {
           if (Array.isArray(response.data)) {
             self.orders = response.data;
+             self.orderid = response.data.id;
           } else {
             self.error = response.data;
           }
@@ -112,19 +138,10 @@ export default {
           console.log(error);
         });
     },
-    getCheck: function() {
-      var self = this;
-      if (localStorage["id"] && localStorage["hash"]) {
-        self.checkUser = 1;
-      } else {
-        self.checkUser = 0;
-      }
-    }
   },
 
   created() {
     this.listOrder();
-    this.getCheck();
   }
 };
 </script>
@@ -144,11 +161,6 @@ color: red;
   color: red;
 }
 
-.order-back{
-   background-image: url(/static/img/order.jpg);
-   margin-top: -60px;
-   min-height: 350px;
-}
 .main-btn {
   margin-top: 40px;
 }

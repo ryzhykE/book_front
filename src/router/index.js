@@ -7,6 +7,11 @@ import Register from '@/components/Register'
 import Cart from '@/components/Cart'
 import Order from '@/components/Order'
 import Admin from '@/components/Admin'
+import AddBook from '@/components/admin/AddBook'
+import AddUser from '@/components/admin/AddUser'
+import EditUser from '@/components/admin/EditUser'
+import UserOrders from '@/components/admin/UserOrders'
+import EditBook from '@/components/admin/EditBook'
 
 Vue.use(Router)
 Vue.use(VueAxios, axios)
@@ -36,7 +41,14 @@ export default new Router({
     {
       path: '/admin/',
       name: 'Admin',
-      component: Admin
+      component: Admin,
+      children: [
+        { path: 'addbook', component: AddBook },
+        { path: 'adduser', component: AddUser },
+        { path: 'edituser/:id', component: EditUser },
+        { path: 'orderuser', component: UserOrders },
+        { path: 'editbook/:id', component: EditBook },
+      ]
     }
 
 

@@ -25,8 +25,11 @@
             <ul class="nav navbar-nav navbar-right">
                 <li><router-link :to="'/register/'">Sign up</router-link></li>
             </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li class="err-pass">{{error}}</li>
+            </ul>
           </div>
-         
+        
           <ul v-else class="nav navbar-nav navbar-right">
               <li><a href="#" v-on:click="logoutUser()" ><span class="glyphicon glyphicon-log-out"></span> Log out </a></li>
               <li><router-link :to="'/cart/'"><span class="glyphicon glyphicon-shopping-cart">Cart</span></router-link>  </li>
@@ -34,6 +37,7 @@
           </ul>
         </div><!--/.navbar-collapse -->
       </div>
+       
     </nav>
   </div>
 </template>
@@ -50,7 +54,7 @@ export default {
       hash: "",
       error: "",
       checkUser: "",
-      role: ""
+      role: "",
     };
   },
   methods: {
@@ -60,7 +64,7 @@ export default {
 
       axios
         .put(
-          "http://bookrest/user12/rest_book/client/api/Client/",
+          getUrl()+'Client/',
           {
             login: self.login,
             pass: self.pass
@@ -78,17 +82,19 @@ export default {
             localStorage["role"] = JSON.stringify(self.role);
             self.checkUserA();
             self.$parent.getCheck();
-            if (self.role == "admin") {
-              self.$router.push("/admin");
-            }
-            return true;
+            if (response.data.role == "admin") {
+                  self.$router.push("/admin");
+                }
+
             return true;
           } else {
             self.error = response.data;
+            
           }
         })
         .catch(function(error) {
           console.log(error);
+          self.error = "password or login wrong"
         });
     },
     checkUserA: function() {
@@ -98,14 +104,12 @@ export default {
         self.hash = JSON.parse(localStorage["hash"]);
         self.role = JSON.stringify(localStorage["role"]);
         axios
-          .get("http://bookrest/user12/rest_book/client/api/Client/" + self.id)
+          .get(getUrl()+'Client/' + self.id)
           .then(function(response) {
             if (response.data !== false) {
-              //console.log(response.data.hash);
+              //console.log(response.data.role);
               if (self.hash === response.data.hash) {
-                if (self.role == "admin") {
-                  self.$router.push("/admin");
-                }
+                
                 self.checkUser = 1;
                 return true;
               }
@@ -126,6 +130,7 @@ export default {
         delete localStorage["login"];
         delete localStorage["role"];
         self.checkUser = "";
+        self.role = "",
         self.$parent.getCheck();
         return true;
       } else {
@@ -139,6 +144,10 @@ export default {
 };
 </script>
 
-<style>
+<style scope>
+.err-pass {
+  font: 14px;
+  color: red;
+}
 
 </style>

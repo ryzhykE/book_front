@@ -1,6 +1,6 @@
 <template>
 
-  <div class="main">
+  <div class="main container-fluid">
     
   <div class="row">
     <loginForm></loginForm>
@@ -74,14 +74,13 @@
           <button class="btn" v-on:click="getBtnCountMinus()">-</button>
             <span class="count-book">{{ count }}</span>
           <button class="btn" v-on:click="getBtnCountPlus()">+</button>
+          {{success}}
         <button  v-on:click="addToCart(book.id)" type="button" class="btn btn-success ">Add to cart</button>
         </div>
         </div >
      </div>
-       
     </div>
-    </div>
-    
+    </div>  
   </div>
 
 </template>
@@ -105,6 +104,7 @@ export default {
       count: 1,
       add: "",
       success: "",
+      role: '',
       config: {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
@@ -120,7 +120,7 @@ export default {
         self.hash = JSON.parse(localStorage["hash"]);
         self.role = JSON.stringify(localStorage["role"]);
         axios
-          .get("http://bookrest/user12/rest_book/client/api/Client/" + self.id)
+          .get(getUrl()+'Client/' + self.id)
           .then(function(response) {
             if (response.data !== false) {
               //console.log(response.data.hash);
@@ -143,6 +143,7 @@ export default {
 
     addToCart: function(id) {
       var self = this;
+      self.success = ''
       self.add = 1;
       var data = new FormData();
       data.append("id_book", id);
@@ -150,7 +151,7 @@ export default {
       data.append("count", self.count);
       axios
         .post(
-          "http://bookrest/user12/rest_book/client/api/cart/",
+          getUrl()+'cart/',
           data,
           self.config
         )
@@ -168,11 +169,13 @@ export default {
     },
     getBtnCountPlus: function() {
       var self = this;
+      self.success = ''
       self.count += 1;
       return self.count;
     },
     getBtnCountMinus: function() {
       var self = this;
+      self.success = ''
       if (self.count < 2) {
         self.count = 1;
       } else {
@@ -191,7 +194,7 @@ export default {
     getAllBooks: function() {
       var self = this;
       axios
-        .get("http://bookrest/user12/rest_book/client/api/Books/", this.config)
+        .get(getUrl()+'Books/', this.config)
         .then(function(response) {
           //console.log(response.data)
           if (response.status == 200) {
@@ -208,7 +211,7 @@ export default {
     getAllGenres: function() {
       var self = this;
       axios
-        .get("http://bookrest/user12/rest_book/client/api/Genre/", this.config)
+        .get(getUrl()+'Genre/', this.config)
         .then(function(response) {
           //console.log(response.data)
           if (response.status == 200) {
@@ -225,7 +228,7 @@ export default {
       var self = this;
       axios
         .get(
-          "http://bookrest/user12/rest_book/client/api/Authors/",
+          getUrl()+'Authors/',
           this.config
         )
         .then(function(response) {
@@ -241,10 +244,11 @@ export default {
         });
     },
     filteredBooks: function(id) {
-      var self = this;
+      var self = this
+      self.success = ''
       axios
         .get(
-          "http://bookrest/user12/rest_book/client/api/Books/" + id + "/",
+          getUrl()+'Books/' + id + "/",
           this.config
         )
         .then(function(response) {
@@ -265,9 +269,10 @@ export default {
     },
     filteredBooksGenre: function(id) {
       var self = this;
+      self.success = ''
       axios
         .get(
-          "http://bookrest/user12/rest_book/client/api/GenreBook/" + id + "/",
+          getUrl()+'GenreBook/' + id + "/",
           this.config
         )
         .then(function(response) {
@@ -289,7 +294,7 @@ export default {
       var self = this;
       axios
         .get(
-          "http://bookrest/user12/rest_book/client/api/AuthorsBook/" + id + "/",
+          getUrl()+'AuthorsBook/' + id + "/",
           this.config
         )
         .then(function(response) {
@@ -309,8 +314,10 @@ export default {
     }
   },
   created() {
-    this.getAllBooks(), this.getAllGenres(), this.getAllAuthors();
-    this.checkUserA();
+    this.getAllBooks() 
+    this.getAllGenres() 
+    this.getAllAuthors()
+    this.checkUserA()
   },
   computed: {},
   components: {
